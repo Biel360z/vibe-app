@@ -6,7 +6,7 @@ tg.ready();
 // --- CONFIGURAÇÃO ---
 // TROQUE ISSO PELO SEU LINK DO PYTHON ANYWHERE
 // Exemplo: https://gegebot.pythonanywhere.com
-const BASE_URL = "gbrking.pythonanywhere.com"; 
+const BASE_URL = "https://gbrking.pythonanywhere.com"; 
 
 // --- NAVEGAÇÃO ENTRE ABAS ---
 function navTo(pageId) {
@@ -146,4 +146,5 @@ if(tg.initDataUnsafe?.user) {
 }
 
 // Carrega os anúncios assim que abre
+
 loadAds();
