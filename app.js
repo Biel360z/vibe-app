@@ -1,61 +1,87 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-const BASE_URL = "https://gbrking.pythonanywhere.com"; 
+const BASE_URL = "https://gbrking.pythonanywhere.com";
 
-function getAvatarColor(name) {
-    const colors = ['#ff5152', '#549df9', '#3af283', '#ffae3d', '#cc7af9', '#4de4f0'];
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    return colors[Math.abs(hash) % colors.length];
+// 1. Inicializa dados do usuário
+document.getElementById('user-name').innerText = tg.initDataUnsafe?.user?.first_name || "Membro";
+
+// 2. Sistema de Navegação
+function navTo(page) {
+    // Esconde todas as páginas e remove active das abas
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+
+    // Ativa a página e a aba correta
+    const targetPage = document.getElementById('page-' + page);
+    if (targetPage) targetPage.classList.add('active');
+    
+    const targetTab = document.getElementById('tab-' + page);
+    if (targetTab) targetTab.classList.add('active');
+
+    // Carrega os dados se não for a home
+    if (page !== 'home') loadData(page);
 }
 
+// 3. Carregar Rankings
 async function loadData(type) {
     const container = document.getElementById(type + '-list');
-    container.innerHTML = '<div class="skeleton-row"></div><div class="skeleton-row"></div>';
+    if (!container) return;
+    
+    container.innerHTML = '<div class="skeleton">Carregando...</div>';
 
     try {
         let endpoint = `/${type}`;
         if (type === 'ranking') {
-            const chatId = tg.initDataUnsafe?.chat?.id || new URLSearchParams(window.location.search).get('chat_id') || 0;
-            endpoint += `?chat_id=${chatId}`;
+            const chatId = tg.initDataUnsafe?.chat?.id || new URLSearchParams(window.location.search).get('chat_id');
+            if (chatId) endpoint += `?chat_id=${chatId}`;
         }
 
         const res = await fetch(`${BASE_URL}${endpoint}`);
         const data = await res.json();
         const list = data[type] || [];
 
-        container.innerHTML = '';
-        if (list.length === 0) {
-            container.innerHTML = '<p class="empty-msg">Nenhum dado encontrado.</p>';
-            return;
-        }
+        container.innerHTML = list.length ? "" : '<p class="empty">Nada por aqui ainda...</p>';
 
         list.forEach((item, i) => {
             const div = document.createElement('div');
             div.className = 'list-item';
             
-            // Lógica de Foto Real vs Inicial
-            const avatarContent = item.photo_url 
-                ? `<img src="${BASE_URL}${item.photo_url}" class="user-avatar-img" onerror="this.style.display='none'">` 
-                : `<div class="user-avatar" style="background:${getAvatarColor(item.name)}">${item.name[0].toUpperCase()}</div>`;
+            const isGroup = (type === 'grupos');
+            const avatar = isGroup ? `<div class="user-avatar">👥</div>` : 
+                          (item.photo_url ? `<img src="${BASE_URL}${item.photo_url}" class="user-avatar-img">` : 
+                          `<div class="user-avatar">${item.name[0]}</div>`);
 
             div.innerHTML = `
                 <div class="rank-num">${i+1}</div>
-                ${avatarContent}
-                <div class="user-info"><b>${item.name}</b><small>${type === 'duplas' ? 'Conexão' : 'Pontos'}</small></div>
+                ${avatar}
+                <div class="user-info"><b>${item.name}</b><small>${type === 'duplas' ? 'Interações' : 'Mensagens'}</small></div>
                 <div class="user-points">${item.points}</div>
             `;
             container.appendChild(div);
         });
-    } catch (e) { container.innerHTML = '<p class="empty-msg">Erro de conexão.</p>'; }
+    } catch (e) { container.innerHTML = '<p class="empty">Erro ao carregar dados.</p>'; }
 }
 
-// Navegação e Ads simplificados para o exemplo
-function navTo(pageId) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('page-' + pageId).classList.add('active');
-    loadData(pageId);
+// 4. Carregar Anúncios
+async function loadAds() {
+    const container = document.getElementById('ads-container');
+    try {
+        const res = await fetch(`${BASE_URL}/ads`);
+        const data = await res.json();
+        if (data.ads.length > 0) {
+            container.innerHTML = data.ads.map(ad => `
+                <div class="ad-card" onclick="tg.openLink('${ad.link}')">
+                    <img src="${ad.image_url}" class="ad-img">
+                    <div class="ad-info">
+                        <span class="ad-tag">Patrocinado</span>
+                        <div class="ad-title">${ad.title}</div>
+                        <div class="ad-desc">${ad.description}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    } catch (e) { container.style.display = 'none'; }
 }
 
-loadData('ranking'); // Início padrão
+loadAds();
