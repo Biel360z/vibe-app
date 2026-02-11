@@ -4,102 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Real Vibe Hub</title>
-    <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="app-container">
-        <section id="page-home" class="page active">
-            <div class="welcome-header">
-                <h1>Olá, <span id="user-name">Membro</span>!</h1>
-                <p>Veja o que está rolando hoje.</p>
-            </div>
-            
-            <div class="section-block">
-                <span class="label">📢 DESTAQUES & PARCEIROS</span>
-                <div class="carousel" id="ads-container">
+    <div id="app">
+        <header>
+            <h1 id="user-name">Carregando...</h1>
+        </header>
+
+        <main>
+            <section id="page-home" class="page active">
+                <div id="ranking-list" class="list-container">
                     </div>
-            </div>
+            </section>
 
-            <div class="section-block">
-                <span class="label">📊 ESTATÍSTICAS</span>
-                
-                <div class="menu-btn" onclick="navTo('ranking')">
-                    <div class="btn-icon" style="background: rgba(255, 204, 0, 0.15); color: #ffcc00;">🏆</div>
-                    <div class="btn-text">Ranking do Grupo</div>
-                    <div class="btn-arrow">›</div>
+            <section id="page-perfil" class="page">
+                <div class="profile-card">
+                    <h2 id="p-name">Usuário</h2>
+                    <canvas id="activityChart"></canvas>
                 </div>
+            </section>
+        </main>
 
-                <div class="menu-btn" onclick="navTo('duplas')">
-                    <div class="btn-icon" style="background: rgba(255, 45, 85, 0.15); color: #ff2d55;">🤝</div>
-                    <div class="btn-text">Melhores Duplas</div>
-                    <div class="btn-arrow">›</div>
-                </div>
-
-                <div class="menu-btn" onclick="navTo('global')">
-                    <div class="btn-icon" style="background: rgba(0, 122, 255, 0.15); color: #007aff;">🌍</div>
-                    <div class="btn-text">Ranking Global</div>
-                    <div class="btn-arrow">›</div>
-                </div>
-
-                <div class="menu-btn" onclick="navTo('grupos')">
-                    <div class="btn-icon" style="background: rgba(77, 228, 240, 0.15); color: #4de4f0;">👥</div>
-                    <div class="btn-text">Ranking de Grupos</div>
-                    <div class="btn-arrow">›</div>
-                </div>
-            </div>
-        </section>
-
-        <section id="page-ranking" class="page">
-            <div class="page-header"><h2>🏆 Top Mensagens</h2></div>
-            <div id="ranking-list" class="list-container"></div>
-        </section>
-
-        <section id="page-duplas" class="page">
-            <div class="page-header"><h2>🤝 Duplas do Momento</h2></div>
-            <div id="duplas-list" class="list-container"></div>
-        </section>
-
-        <section id="page-global" class="page">
-            <div class="page-header"><h2>🌍 Lendas Globais</h2></div>
-            <div id="global-list" class="list-container"></div>
-        </section>
-
-        <section id="page-grupos" class="page">
-            <div class="page-header"><h2>👥 Grupos Dominantes</h2></div>
-            <div id="grupos-list" class="list-container"></div>
-        </section>
-
-        <section id="page-perfil" class="page">
-            <div class="page-header"><h2>👤 Seu Perfil</h2></div>
-            
-            <div class="profile-card">
-                <div class="avatar-large" id="p-img">?</div>
-                <h3 id="p-name">Carregando...</h3>
-                <p id="p-id">ID: 000</p>
-                <div class="stats-row">
-                    <button onclick="tg.showAlert('Status: Membro Verificado ✅')" class="action-btn">Verificar Status</button>
-                </div>
-                </div>
-
-            <div class="section-title" style="margin-left: 15px; margin-top: 20px;">📊 Atividade Semanal</div>
-            <div class="chart-container" style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; margin: 10px; height: 250px;">
-                <canvas id="activityChart"></canvas>
-            </div>
-            
-            <div style="height: 80px;"></div>
-        </section>
+        <nav class="bottom-nav">
+            <div class="nav-item active" id="tab-home" onclick="navTo('home')">🏠 Feed</div>
+            <div class="nav-item" id="tab-perfil" onclick="navTo('perfil')">👤 Perfil</div>
+        </nav>
     </div>
-
-    <nav class="bottom-nav">
-        <div class="nav-item active" onclick="navTo('home')" id="tab-home"><i>🏠</i><span>Início</span></div>
-        <div class="nav-item" onclick="navTo('ranking')" id="tab-ranking"><i>🏆</i><span>Rank</span></div>
-        <div class="nav-item" onclick="navTo('duplas')" id="tab-duplas"><i>🤝</i><span>Duplas</span></div>
-        <div class="nav-item" onclick="navTo('global')" id="tab-global"><i>🌍</i><span>Global</span></div>
-        <div class="nav-item" onclick="navTo('perfil')" id="tab-perfil"><i>👤</i><span>Perfil</span></div>
-    </nav>
-
     <script src="app.js"></script>
 </body>
 </html>
