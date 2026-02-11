@@ -83,6 +83,13 @@
         </section>
     </div>
 
+    <div class="section-title">📊 Atividade Semanal</div>
+<div class="chart-container" style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; margin: 10px;">
+    <canvas id="activityChart" style="max-height: 200px;"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="navTo('home')" id="tab-home"><i>🏠</i><span>Início</span></div>
         <div class="nav-item" onclick="navTo('ranking')" id="tab-ranking"><i>🏆</i><span>Rank</span></div>
@@ -94,3 +101,4 @@
     <script src="app.js"></script>
 </body>
 </html>
+
