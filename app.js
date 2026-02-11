@@ -21,7 +21,7 @@ function navTo(page) {
 
     // LÓGICA DE CARREGAMENTO
     if (page === 'perfil') {
-        loadProfile(); // Se for perfil, carrega stats do usuário
+        loadProfile(); // Se for perfil, carrega stats e gráfico
     } else if (page !== 'home') {
         loadData(page); // Se for ranking, carrega lista
     }
@@ -76,20 +76,19 @@ async function loadProfile() {
     document.getElementById('p-name').innerText = user.first_name + (user.last_name ? " " + user.last_name : "");
     document.getElementById('p-id').innerText = `ID: ${user.id}`;
     
-    // Foto de Perfil (usando a do Telegram direto ou a nossa salva)
+    // Foto de Perfil
     const pImg = document.getElementById('p-img');
     if (user.photo_url) {
         pImg.innerHTML = `<img src="${user.photo_url}" class="avatar-large-img" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
     }
 
     try {
+        // Busca estatísticas
         const res = await fetch(`${BASE_URL}/user_stats/${user.id}`);
         const stats = await res.json();
         
         // Atualiza ou cria a grade de estatísticas
         const profileCard = document.querySelector('.profile-card');
-        
-        // Remove grade antiga se existir para não duplicar
         const oldGrid = document.querySelector('.stats-grid');
         if (oldGrid) oldGrid.remove();
 
@@ -110,10 +109,68 @@ async function loadProfile() {
             </div>
         `;
         profileCard.insertAdjacentHTML('beforeend', statsHtml);
+        
+        // CHAMA O GRÁFICO DEPOIS DE CARREGAR OS DADOS
+        loadHistory(user.id);
+
     } catch (e) { console.error("Erro ao carregar stats", e); }
 }
 
-// 5. Carregar Anúncios
+// 5. Funções do Gráfico (Chart.js)
+async function loadHistory(userId) {
+    try {
+        const res = await fetch(`${BASE_URL}/user_history/${userId}`);
+        const data = await res.json();
+        
+        if (data.history && data.history.length > 0) {
+            renderChart(data.history);
+        }
+    } catch (e) { console.error("Erro ao carregar histórico", e); }
+}
+
+function renderChart(historyData) {
+    const canvas = document.getElementById('activityChart');
+    if (!canvas) return; // Segurança caso o canvas não exista no HTML
+    
+    const ctx = canvas.getContext('2d');
+    
+    if (window.myChart) window.myChart.destroy(); // Limpa gráfico anterior
+
+    window.myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: historyData.map(d => d.data),
+            datasets: [{
+                data: historyData.map(d => d.pts),
+                borderColor: '#ffcc00',
+                backgroundColor: 'rgba(255, 204, 0, 0.2)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#ffcc00'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { 
+                    beginAtZero: true, 
+                    grid: { color: 'rgba(255,255,255,0.1)' },
+                    ticks: { color: '#aaa', font: { size: 10 } }
+                },
+                x: { 
+                    grid: { display: false },
+                    ticks: { color: '#aaa', font: { size: 10 } }
+                }
+            }
+        }
+    });
+}
+
+// 6. Carregar Anúncios
 async function loadAds() {
     const container = document.getElementById('ads-container');
     try {
@@ -133,7 +190,11 @@ async function loadAds() {
         } else {
             container.closest('.section-block').style.display = 'none';
         }
-    } catch (e) { container.closest('.section-block').style.display = 'none'; }
+    } catch (e) { 
+        if(container && container.closest('.section-block')) {
+            container.closest('.section-block').style.display = 'none';
+        }
+    }
 }
 
 loadAds();
